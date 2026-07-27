@@ -17,7 +17,12 @@ export default async function SignupPage({
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center text-center">
-          <Bot className="mb-2 size-8 text-primary" />
+          <div className="mb-1 flex items-center gap-2">
+            <Bot className="size-6 text-primary" />
+            <span className="font-heading text-sm font-medium text-foreground">
+              AI Operations Hub
+            </span>
+          </div>
           <CardTitle>Create your account</CardTitle>
         </CardHeader>
         <CardContent>
