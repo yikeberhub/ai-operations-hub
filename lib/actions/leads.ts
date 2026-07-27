@@ -1,8 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { scoreLead, draftEmailReply } from "@/lib/ai/lead-scoring";
+import type { Enums } from "@/lib/types/database.types";
 
 // Public support/contact submissions and logged-in client submissions both land
 // here as leads. Uses the service client to bypass RLS since anonymous visitors
@@ -30,17 +33,129 @@ export async function submitLead(formData: FormData) {
 
   if (!org) redirect(`${redirectTo}?error=${encodeURIComponent("No org configured")}`);
 
-  const { error } = await service.from("leads").insert({
-    org_id: org.id,
-    client_id: user?.id ?? null,
-    full_name: fullName,
-    email,
-    company,
-    phone,
-    message,
-    source: user ? "client-dashboard" : "website",
-  });
+  const { data: lead, error } = await service
+    .from("leads")
+    .insert({
+      org_id: org.id,
+      client_id: user?.id ?? null,
+      full_name: fullName,
+      email,
+      company,
+      phone,
+      message,
+      source: user ? "client-dashboard" : "website",
+    })
+    .select("id")
+    .single();
 
   if (error) redirect(`${redirectTo}?error=${encodeURIComponent(error.message)}`);
+
+  await triageLead(service, lead.id, org.id, { fullName, email, company, message });
+
   redirect(`${redirectTo}?success=1`);
+}
+
+// Best-effort AI triage: summarizes the message, assigns priority/score, and
+// suggests a next action. Never blocks or fails lead submission — errors are
+// logged to workflow_logs instead, same as n8n-originated workflow runs.
+async function triageLead(
+  service: ReturnType<typeof createServiceClient>,
+  leadId: string,
+  orgId: string,
+  input: { fullName: string; email: string; company: string | null; message: string | null }
+) {
+  const startedAt = Date.now();
+  try {
+    const result = await scoreLead(input);
+
+    await service
+      .from("leads")
+      .update({
+        ai_summary: result.summary,
+        priority: result.priority,
+        score: result.score,
+        next_action: result.nextAction,
+        status: "processing",
+      })
+      .eq("id", leadId);
+
+    await service.from("workflow_logs").insert({
+      org_id: orgId,
+      workflow_name: "lead_scoring",
+      status: "success",
+      duration_ms: Date.now() - startedAt,
+      payload: { leadId },
+    });
+  } catch (err) {
+    await service.from("workflow_logs").insert({
+      org_id: orgId,
+      workflow_name: "lead_scoring",
+      status: "failure",
+      duration_ms: Date.now() - startedAt,
+      payload: { leadId },
+      error_details: { message: err instanceof Error ? err.message : String(err) },
+    });
+  }
+}
+
+// Staff-only edits below. All go through the normal (RLS-respecting) client —
+// the "leads: staff org access" policy already restricts these to admin/agent
+// profiles within their own org, so there's no need for the service client.
+
+export async function updateLeadFields(
+  leadId: string,
+  fields: Partial<{
+    status: Enums<"lead_status">;
+    priority: Enums<"lead_priority">;
+    next_action: string;
+  }>
+) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("leads").update(fields).eq("id", leadId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/leads");
+  return { error: null };
+}
+
+export async function generateDraftReply(leadId: string) {
+  const supabase = await createClient();
+  const { data: lead, error: fetchError } = await supabase
+    .from("leads")
+    .select("full_name, message, ai_summary")
+    .eq("id", leadId)
+    .single();
+
+  if (fetchError || !lead) return { error: fetchError?.message ?? "Lead not found", draftEmail: null };
+
+  try {
+    const draftEmail = await draftEmailReply({
+      fullName: lead.full_name,
+      message: lead.message,
+      aiSummary: lead.ai_summary,
+    });
+
+    const { error: updateError } = await supabase
+      .from("leads")
+      .update({ draft_email: draftEmail })
+      .eq("id", leadId);
+
+    if (updateError) return { error: updateError.message, draftEmail: null };
+
+    revalidatePath("/leads");
+    return { error: null, draftEmail };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err), draftEmail: null };
+  }
+}
+
+export async function saveDraftReply(leadId: string, draftEmail: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("leads").update({ draft_email: draftEmail }).eq("id", leadId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/leads");
+  return { error: null };
 }
