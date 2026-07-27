@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/supabase/profile";
 import { SidebarNav } from "@/components/dashboard/sidebar-nav";
 import { Topbar } from "@/components/dashboard/topbar";
 
@@ -8,12 +8,10 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, profile } = await getCurrentProfile();
 
   if (!user) redirect("/login");
+  if (profile?.role === "client") redirect("/client");
 
   return (
     <div className="flex h-screen w-full overflow-hidden">

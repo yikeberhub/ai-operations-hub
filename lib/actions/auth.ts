@@ -11,7 +11,7 @@ export async function signIn(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
-  redirect("/dashboard");
+  redirect("/");
 }
 
 export async function signUp(formData: FormData) {
@@ -26,8 +26,8 @@ export async function signUp(formData: FormData) {
     options: { data: { full_name: fullName } },
   });
 
-  if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
-  redirect("/dashboard");
+  if (error) redirect(`/signup?error=${encodeURIComponent(error.message)}`);
+  redirect("/");
 }
 
 export async function signOut() {

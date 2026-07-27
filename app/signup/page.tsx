@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn } from "@/lib/actions/auth";
+import { signUp } from "@/lib/actions/auth";
 
-export default async function LoginPage({
+export default async function SignupPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
@@ -18,10 +18,14 @@ export default async function LoginPage({
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center text-center">
           <Bot className="mb-2 size-8 text-primary" />
-          <CardTitle>Sign in to AI Operations Hub</CardTitle>
+          <CardTitle>Create your account</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={signIn} className="space-y-4">
+          <form action={signUp} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full name</Label>
+              <Input id="fullName" name="fullName" type="text" required autoComplete="name" />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" required autoComplete="email" />
@@ -33,18 +37,19 @@ export default async function LoginPage({
                 name="password"
                 type="password"
                 required
-                autoComplete="current-password"
+                autoComplete="new-password"
+                minLength={6}
               />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full">
-              Sign in
+              Sign up
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="underline underline-offset-4">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/login" className="underline underline-offset-4">
+              Sign in
             </Link>
           </p>
         </CardContent>
