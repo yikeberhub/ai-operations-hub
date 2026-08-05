@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { scoreLead, draftEmailReply } from "@/lib/ai/lead-scoring";
+import { notifyHotAlert } from "@/lib/actions/notifications";
 import type { Enums } from "@/lib/types/database.types";
 
 // Public support/contact submissions and logged-in client submissions both land
@@ -88,6 +89,17 @@ async function triageLead(
       duration_ms: Date.now() - startedAt,
       payload: { leadId },
     });
+
+    if (result.priority === "HOT") {
+      await notifyHotAlert({
+        orgId,
+        kind: "lead",
+        id: leadId,
+        summary: result.summary,
+        score: result.score,
+        fromLabel: input.fullName || input.email,
+      });
+    }
   } catch (err) {
     await service.from("workflow_logs").insert({
       org_id: orgId,
