@@ -10,8 +10,8 @@ export async function signIn(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-  if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
-  redirect("/");
+  if (error) return { error: error.message };
+  return { error: null };
 }
 
 export async function signUp(formData: FormData) {
@@ -26,8 +26,8 @@ export async function signUp(formData: FormData) {
     options: { data: { full_name: fullName } },
   });
 
-  if (error) redirect(`/signup?error=${encodeURIComponent(error.message)}`);
-  redirect("/");
+  if (error) return { error: error.message };
+  return { error: null };
 }
 
 export async function signOut() {
