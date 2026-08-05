@@ -63,7 +63,7 @@ export default async function EmailIntelligencePage({
             Inbound email, categorized and prioritized by AI. Click a row for details.
           </p>
         </div>
-        <LomigEmailDialog />
+        <LogEmailDialog />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
