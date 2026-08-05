@@ -53,6 +53,18 @@ type ReplyLogEntry = {
   error_details: unknown;
 };
 
+const SENTIMENT_EMOJI: Record<string, string> = {
+  Positive: "😊",
+  Neutral: "😐",
+  Negative: "😡",
+};
+
+const SENTIMENT_STYLES: Record<string, string> = {
+  Positive: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  Neutral: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  Negative: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+};
+
 const PRIORITY_STYLES: Record<string, string> = {
   HOT: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
   WARM: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
@@ -200,6 +212,26 @@ export function EmailDetailSheet({
                 AI summary
               </Label>
               <p className="mt-1.5 text-sm">{email.ai_summary}</p>
+            </div>
+          )}
+
+          {email.sentiment && (
+            <div>
+              <Label className="text-xs text-muted-foreground">Sentiment</Label>
+              <div className="mt-1.5 flex items-center gap-2">
+                <Badge
+                  variant="secondary"
+                  className={cn("gap-1 border-0", SENTIMENT_STYLES[email.sentiment])}
+                >
+                  <span>{SENTIMENT_EMOJI[email.sentiment]}</span>
+                  {email.sentiment}
+                </Badge>
+                {email.sentiment_score !== null && (
+                  <span className="text-xs text-muted-foreground">
+                    score: {email.sentiment_score.toFixed(2)}
+                  </span>
+                )}
+              </div>
             </div>
           )}
 

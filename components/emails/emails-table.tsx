@@ -41,6 +41,12 @@ const CATEGORY_STYLES: Record<string, string> = {
   other: "bg-muted text-muted-foreground",
 };
 
+const SENTIMENT_EMOJI: Record<string, string> = {
+  Positive: "😊",
+  Neutral: "😐",
+  Negative: "😡",
+};
+
 function initialsOf(address: string) {
   return address.slice(0, 2).toUpperCase();
 }
@@ -126,13 +132,20 @@ export function EmailsTable({ emails }: { emails: EmailRow[] }) {
                 )}
               </TableCell>
               <TableCell>
-                {email.priority ? (
-                  <Badge variant="secondary" className={cn("border-0", PRIORITY_STYLES[email.priority])}>
-                    {email.priority}
-                  </Badge>
-                ) : (
-                  <span className="text-sm text-muted-foreground">—</span>
-                )}
+                <div className="flex items-center gap-1.5">
+                  {email.priority ? (
+                    <Badge variant="secondary" className={cn("border-0", PRIORITY_STYLES[email.priority])}>
+                      {email.priority}
+                    </Badge>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">—</span>
+                  )}
+                  {email.sentiment && (
+                    <span title={`Sentiment: ${email.sentiment}`} className="text-sm">
+                      {SENTIMENT_EMOJI[email.sentiment]}
+                    </span>
+                  )}
+                </div>
               </TableCell>
               <TableCell>
                 <Badge variant="secondary" className={cn("border-0 capitalize", STATUS_STYLES[email.status])}>
