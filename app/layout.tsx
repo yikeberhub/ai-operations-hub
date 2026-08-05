@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Operations Hub",
-  description: "Lead qualification, email intelligence, and support agent — unified.",
+  title: "Muya Tech",
+  description: "Muya Tech's internal AI operations platform — lead qualification, email intelligence, and support agent, unified.",
 };
 
 export default function RootLayout({

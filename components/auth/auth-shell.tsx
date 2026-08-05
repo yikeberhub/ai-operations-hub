@@ -15,20 +15,21 @@ export function AuthShell({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.15),_transparent_60%)]" />
         <div className="relative flex items-center gap-2">
           <Bot className="size-6" />
-          <span className="font-heading text-sm font-medium">AI Operations Hub</span>
+          <span className="font-heading text-sm font-medium">Muya Tech</span>
         </div>
         <div className="relative space-y-4">
           <Sparkles className="size-8 opacity-90" />
           <p className="max-w-sm text-2xl font-semibold leading-snug">
-            Inbound email and leads, triaged, scored, and answered — automatically.
+            Muya Tech&apos;s internal operations hub — inbound email and leads, triaged, scored,
+            and answered automatically.
           </p>
           <p className="max-w-sm text-sm text-primary-foreground/80">
-            AI-powered categorization, priority scoring, sentiment analysis, and a knowledge-base
-            support agent, all in one place.
+            AI-powered categorization, priority scoring, sentiment analysis, and Selam — our
+            knowledge-base support assistant — all in one place.
           </p>
         </div>
         <p className="relative text-xs text-primary-foreground/60">
-          © {new Date().getFullYear()} AI Operations Hub
+          © {new Date().getFullYear()} Muya Tech
         </p>
       </div>
 
@@ -36,7 +37,7 @@ export function AuthShell({
         <div className="mb-8 flex items-center gap-2 lg:hidden">
           <Bot className="size-6 text-primary" />
           <span className="font-heading text-sm font-medium text-foreground">
-            AI Operations Hub
+            Muya Tech
           </span>
         </div>
         <div className="w-full max-w-sm">

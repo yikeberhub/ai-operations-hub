@@ -11,7 +11,8 @@ const CategorizationResult = z.object({
 
 export type EmailCategorizationResult = z.infer<typeof CategorizationResult>;
 
-const SYSTEM_PROMPT = `You are an email triage assistant for a B2B services company.
+const SYSTEM_PROMPT = `You are an email triage assistant for Muya Tech, a B2B SaaS company selling
+workflow automation and team-collaboration software to other businesses.
 Given an inbound email, respond with a JSON object with exactly these fields:
 - summary: one-sentence summary of what the sender wants (max 200 chars)
 - category: one of "sales" (new business inquiry), "support" (existing customer needs help),
@@ -54,7 +55,7 @@ const DraftResult = z.object({ draftReply: z.string() });
 
 const DRAFT_SYSTEM_PROMPT = `You are a support/sales rep replying to an inbound email.
 Write a short, warm, professional reply (3-6 sentences) that addresses the email directly
-and suggests a clear next step. Sign off as "The Team".
+and suggests a clear next step. Sign off as "The Muya Tech Team".
 Respond with a JSON object: { "draftReply": "<the email body>" }.`;
 
 export async function draftEmailReply(input: {

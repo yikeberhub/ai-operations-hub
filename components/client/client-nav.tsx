@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/client", label: "My messages", icon: MessageSquareText },
-  { href: "/client/support", label: "Ask AI", icon: Sparkles },
+  { href: "/client/support", label: "Selam", icon: Sparkles },
 ];
 
 export function ClientNav() {

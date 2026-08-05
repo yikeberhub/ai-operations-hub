@@ -89,8 +89,8 @@ export function ChatPanel() {
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
             <Bot className="size-8" />
             <p className="text-sm">
-              Ask about this platform — features, policies, how things work. Answers come only
-              from the knowledge base, not general AI knowledge.
+              Hi, I&apos;m Selam — ask me about Muya Tech, our policies, or how things work.
+              I only answer from our knowledge base, not general AI knowledge.
             </p>
           </div>
         )}
@@ -152,7 +152,7 @@ export function ChatPanel() {
               handleSend();
             }
           }}
-          placeholder="Ask about this platform…"
+          placeholder="Message Selam…"
           rows={1}
           className="min-h-9 resize-none"
         />

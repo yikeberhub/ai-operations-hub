@@ -20,7 +20,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/email-intelligence", label: "Email Intelligence", icon: Mail },
-  { href: "/support-agent", label: "Support Agent", icon: MessageSquareText },
+  { href: "/support-agent", label: "Selam", icon: MessageSquareText },
   { href: "/workflow-logs", label: "Workflow Logs", icon: ScrollText },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -53,7 +53,7 @@ export function SidebarNav() {
     >
       <div className="flex h-14 items-center gap-2 border-b px-4">
         <Bot className="size-5 shrink-0 text-primary" />
-        {!collapsed && <span className="truncate font-semibold">AI Operations Hub</span>}
+        {!collapsed && <span className="truncate font-semibold">Muya Tech</span>}
       </div>
       <div className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden p-2">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {

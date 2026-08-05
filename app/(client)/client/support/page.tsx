@@ -4,11 +4,11 @@ export default function ClientSupportPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Ask about your account</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Chat with Selam</h1>
         <p className="text-muted-foreground">
-          Get instant answers about our services, policies, and how things work — sourced directly
-          from our team&apos;s knowledge base, not a generic AI. If we&apos;re not confident in an
-          answer, a real person will follow up.
+          Selam is Muya Tech&apos;s AI assistant — get instant answers about our services, policies,
+          and how things work, sourced directly from our knowledge base, not a generic AI. If
+          she&apos;s not confident in an answer, a real person will follow up.
         </p>
       </div>
 

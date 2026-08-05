@@ -14,7 +14,7 @@ export default async function LoginPage({
   const { error } = await searchParams;
 
   return (
-    <AuthShell title="Welcome back" subtitle="Sign in to your AI Operations Hub account">
+    <AuthShell title="Welcome back" subtitle="Sign in to your Muya Tech account">
       <form action={signIn} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>

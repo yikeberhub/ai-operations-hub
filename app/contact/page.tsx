@@ -20,7 +20,7 @@ export default async function ContactPage({
           <div className="mb-1 flex items-center gap-2">
             <Bot className="size-6 text-primary" />
             <span className="font-heading text-sm font-medium text-foreground">
-              AI Operations Hub
+              Muya Tech
             </span>
           </div>
           <CardTitle>Get in touch</CardTitle>

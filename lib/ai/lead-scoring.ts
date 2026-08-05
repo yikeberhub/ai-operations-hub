@@ -12,7 +12,8 @@ const ScoringResult = z.object({
 
 export type LeadScoringResult = z.infer<typeof ScoringResult>;
 
-const SYSTEM_PROMPT = `You are a sales and support triage assistant for a B2B services company.
+const SYSTEM_PROMPT = `You are a sales and support triage assistant for Muya Tech, a B2B SaaS
+company selling workflow automation and team-collaboration software to other businesses.
 Given a lead's submitted message, respond with a JSON object with exactly these fields:
 - summary: one-sentence summary of what the lead wants (max 200 chars)
 - priority: "HOT" (ready to buy / urgent issue), "WARM" (interested but not urgent), or "COLD" (vague, spam-like, or low intent)
@@ -58,7 +59,7 @@ const DraftResult = z.object({ draftEmail: z.string() });
 const DRAFT_SYSTEM_PROMPT = `You are a support/sales rep writing a reply email to a lead who contacted us.
 Write a short, warm, professional reply (3-6 sentences) that addresses their message directly,
 answers or acknowledges what they asked, and suggests a clear next step.
-Sign off as "The Team". Respond with a JSON object: { "draftEmail": "<the email body>" }.`;
+Sign off as "The Muya Tech Team". Respond with a JSON object: { "draftEmail": "<the email body>" }.`;
 
 export async function draftEmailReply(input: {
   fullName: string;

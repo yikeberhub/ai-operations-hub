@@ -14,7 +14,7 @@ export default async function SignupPage({
   const { error } = await searchParams;
 
   return (
-    <AuthShell title="Create your account" subtitle="Get started with AI Operations Hub">
+    <AuthShell title="Create your account" subtitle="Get started with Muya Tech">
       <form action={signUp} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="fullName">Full name</Label>
