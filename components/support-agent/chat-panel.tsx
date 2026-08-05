@@ -88,7 +88,10 @@ export function ChatPanel() {
         {messages.length === 0 && (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
             <Bot className="size-8" />
-            <p className="text-sm">Ask a question — answers are grounded in your knowledge base.</p>
+            <p className="text-sm">
+              Ask about this platform — features, policies, how things work. Answers come only
+              from the knowledge base, not general AI knowledge.
+            </p>
           </div>
         )}
 
@@ -149,7 +152,7 @@ export function ChatPanel() {
               handleSend();
             }
           }}
-          placeholder="Ask a question…"
+          placeholder="Ask about this platform…"
           rows={1}
           className="min-h-9 resize-none"
         />

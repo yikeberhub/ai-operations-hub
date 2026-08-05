@@ -4,10 +4,12 @@ export default function SupportAgentPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Support Agent</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Platform Assistant</h1>
         <p className="text-muted-foreground">
-          Ask a question and get an answer grounded in the knowledge base, with citations and a
-          confidence score. Low-confidence answers are flagged for a human.
+          Ask questions about your organization&apos;s knowledge base — policies, docs, FAQs, anything
+          you&apos;ve added under Settings. Answers cite the exact source excerpts and a confidence
+          score; this isn&apos;t a general-purpose AI, it only knows what&apos;s in your knowledge base.
+          Low-confidence answers are flagged for a human.
         </p>
       </div>
 
