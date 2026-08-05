@@ -20,6 +20,7 @@ export default async function EmailIntelligencePage({
     q?: string;
     category?: string;
     priority?: string;
+    sentiment?: string;
     status?: string;
     page?: string;
   }>;
@@ -48,6 +49,8 @@ export default async function EmailIntelligencePage({
     query = query.eq("category", params.category as NonNullable<EmailRow["category"]>);
   if (params.priority)
     query = query.eq("priority", params.priority as NonNullable<EmailRow["priority"]>);
+  if (params.sentiment)
+    query = query.eq("sentiment", params.sentiment as NonNullable<EmailRow["sentiment"]>);
   if (params.status) query = query.eq("status", params.status as EmailRow["status"]);
   if (params.q) query = query.or(`from_address.ilike.%${params.q}%,subject.ilike.%${params.q}%`);
 

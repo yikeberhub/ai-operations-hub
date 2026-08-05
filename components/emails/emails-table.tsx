@@ -47,6 +47,12 @@ const SENTIMENT_EMOJI: Record<string, string> = {
   Negative: "😡",
 };
 
+const SENTIMENT_STYLES: Record<string, string> = {
+  Positive: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  Neutral: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  Negative: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+};
+
 function initialsOf(address: string) {
   return address.slice(0, 2).toUpperCase();
 }
@@ -88,6 +94,7 @@ export function EmailsTable({ emails }: { emails: EmailRow[] }) {
             <TableHead>Subject / summary</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Priority</TableHead>
+            <TableHead>Sentiment</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Received</TableHead>
             <TableHead className="w-9" />
@@ -132,20 +139,23 @@ export function EmailsTable({ emails }: { emails: EmailRow[] }) {
                 )}
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-1.5">
-                  {email.priority ? (
-                    <Badge variant="secondary" className={cn("border-0", PRIORITY_STYLES[email.priority])}>
-                      {email.priority}
-                    </Badge>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">—</span>
-                  )}
-                  {email.sentiment && (
-                    <span title={`Sentiment: ${email.sentiment}`} className="text-sm">
-                      {SENTIMENT_EMOJI[email.sentiment]}
-                    </span>
-                  )}
-                </div>
+                {email.priority ? (
+                  <Badge variant="secondary" className={cn("border-0", PRIORITY_STYLES[email.priority])}>
+                    {email.priority}
+                  </Badge>
+                ) : (
+                  <span className="text-sm text-muted-foreground">—</span>
+                )}
+              </TableCell>
+              <TableCell>
+                {email.sentiment ? (
+                  <Badge variant="secondary" className={cn("gap-1 border-0", SENTIMENT_STYLES[email.sentiment])}>
+                    <span>{SENTIMENT_EMOJI[email.sentiment]}</span>
+                    {email.sentiment}
+                  </Badge>
+                ) : (
+                  <span className="text-sm text-muted-foreground">—</span>
+                )}
               </TableCell>
               <TableCell>
                 <Badge variant="secondary" className={cn("border-0 capitalize", STATUS_STYLES[email.status])}>

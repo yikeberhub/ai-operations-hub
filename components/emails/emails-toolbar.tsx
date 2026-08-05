@@ -15,6 +15,7 @@ import {
 
 const CATEGORY_OPTIONS = ["sales", "support", "billing", "spam", "other"];
 const PRIORITY_OPTIONS = ["HOT", "WARM", "COLD"];
+const SENTIMENT_OPTIONS = ["Positive", "Neutral", "Negative"];
 const STATUS_OPTIONS = ["new", "processing", "processed", "replied"];
 
 const ALL = "all";
@@ -27,6 +28,7 @@ export function EmailsToolbar() {
 
   const category = searchParams.get("category") ?? ALL;
   const priority = searchParams.get("priority") ?? ALL;
+  const sentiment = searchParams.get("sentiment") ?? ALL;
   const status = searchParams.get("status") ?? ALL;
 
   const setParam = useCallback(
@@ -49,7 +51,7 @@ export function EmailsToolbar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
-  const activeFilterCount = [category, priority, status].filter((v) => v !== ALL).length + (searchParams.get("q") ? 1 : 0);
+  const activeFilterCount = [category, priority, sentiment, status].filter((v) => v !== ALL).length + (searchParams.get("q") ? 1 : 0);
 
   const clearFilters = () => {
     setQuery("");
@@ -94,6 +96,20 @@ export function EmailsToolbar() {
             {PRIORITY_OPTIONS.map((p) => (
               <SelectItem key={p} value={p}>
                 {p}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={sentiment} onValueChange={(v) => v && setParam("sentiment", v)}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue placeholder="Sentiment" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All sentiments</SelectItem>
+            {SENTIMENT_OPTIONS.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
               </SelectItem>
             ))}
           </SelectContent>

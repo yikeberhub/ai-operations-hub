@@ -35,3 +35,26 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+// Always redirects to the same "check your email" state regardless of whether the
+// address exists, so this can't be used to enumerate registered accounts.
+export async function requestPasswordReset(formData: FormData) {
+  const email = formData.get("email") as string;
+  const supabase = await createClient();
+
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/auth/callback?next=/reset-password`,
+  });
+
+  redirect("/forgot-password?success=1");
+}
+
+export async function updatePassword(formData: FormData) {
+  const password = formData.get("password") as string;
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) redirect(`/reset-password?error=${encodeURIComponent(error.message)}`);
+  redirect("/login?success=1");
+}
