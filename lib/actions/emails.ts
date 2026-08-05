@@ -51,6 +51,8 @@ async function triageEmail(
         ai_summary: result.summary,
         category: result.category,
         priority: result.priority,
+        sentiment: result.sentiment,
+        sentiment_score: result.sentiment_score,
         status: "processed",
       })
       .eq("id", emailId);

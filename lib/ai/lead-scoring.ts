@@ -6,6 +6,8 @@ const ScoringResult = z.object({
   priority: z.enum(["HOT", "WARM", "COLD"]),
   score: z.number().int().min(0).max(100),
   nextAction: z.string(),
+  sentiment: z.enum(["Positive", "Neutral", "Negative"]),
+  sentiment_score: z.number().min(0).max(1),
 });
 
 export type LeadScoringResult = z.infer<typeof ScoringResult>;
@@ -15,7 +17,10 @@ Given a lead's submitted message, respond with a JSON object with exactly these 
 - summary: one-sentence summary of what the lead wants (max 200 chars)
 - priority: "HOT" (ready to buy / urgent issue), "WARM" (interested but not urgent), or "COLD" (vague, spam-like, or low intent)
 - score: integer 0-100, lead quality/urgency score
-- nextAction: one short, concrete suggested next step for the sales/support team (max 150 chars)`;
+- nextAction: one short, concrete suggested next step for the sales/support team (max 150 chars)
+- sentiment: overall emotional tone of the lead's message — "Positive", "Neutral", or "Negative"
+- sentiment_score: how strongly that sentiment is expressed, a float from 0.0 (very negative) to 1.0 (very positive),
+  with 0.5 as neutral midpoint`;
 
 export async function scoreLead(input: {
   fullName: string;

@@ -191,6 +191,8 @@ export type Database = {
           id: string
           org_id: string
           priority: Database["public"]["Enums"]["email_priority"] | null
+          sentiment: Database["public"]["Enums"]["email_sentiment"] | null
+          sentiment_score: number | null
           status: Database["public"]["Enums"]["email_status"]
           subject: string | null
           thread_id: string | null
@@ -206,6 +208,8 @@ export type Database = {
           id?: string
           org_id: string
           priority?: Database["public"]["Enums"]["email_priority"] | null
+          sentiment?: Database["public"]["Enums"]["email_sentiment"] | null
+          sentiment_score?: number | null
           status?: Database["public"]["Enums"]["email_status"]
           subject?: string | null
           thread_id?: string | null
@@ -221,6 +225,8 @@ export type Database = {
           id?: string
           org_id?: string
           priority?: Database["public"]["Enums"]["email_priority"] | null
+          sentiment?: Database["public"]["Enums"]["email_sentiment"] | null
+          sentiment_score?: number | null
           status?: Database["public"]["Enums"]["email_status"]
           subject?: string | null
           thread_id?: string | null
@@ -252,6 +258,8 @@ export type Database = {
           phone: string | null
           priority: Database["public"]["Enums"]["lead_priority"] | null
           score: number | null
+          sentiment: Database["public"]["Enums"]["lead_sentiment"] | null
+          sentiment_score: number | null
           source: string | null
           status: Database["public"]["Enums"]["lead_status"]
           updated_at: string
@@ -271,6 +279,8 @@ export type Database = {
           phone?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"] | null
           score?: number | null
+          sentiment?: Database["public"]["Enums"]["lead_sentiment"] | null
+          sentiment_score?: number | null
           source?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
@@ -290,6 +300,8 @@ export type Database = {
           phone?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"] | null
           score?: number | null
+          sentiment?: Database["public"]["Enums"]["lead_sentiment"] | null
+          sentiment_score?: number | null
           source?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
@@ -404,6 +416,18 @@ export type Database = {
     }
     Functions: {
       current_org_id: { Args: never; Returns: string }
+      email_priority_vs_sentiment: {
+        Args: { p_org_id: string }
+        Returns: { priority: string; sentiment: string; count: number }[]
+      }
+      email_sentiment_counts: {
+        Args: { p_org_id: string }
+        Returns: { sentiment: string; count: number }[]
+      }
+      email_sentiment_trend_30d: {
+        Args: { p_org_id: string }
+        Returns: { day: string; avg_sentiment_score: number }[]
+      }
       is_staff: { Args: never; Returns: boolean }
       match_document_chunks: {
         Args: {
@@ -425,8 +449,10 @@ export type Database = {
       document_status: "processing" | "ready" | "failed"
       email_category: "sales" | "support" | "billing" | "spam" | "other"
       email_priority: "HOT" | "WARM" | "COLD"
+      email_sentiment: "Positive" | "Neutral" | "Negative"
       email_status: "new" | "processing" | "processed" | "replied"
       lead_priority: "HOT" | "WARM" | "COLD"
+      lead_sentiment: "Positive" | "Neutral" | "Negative"
       lead_status: "new" | "processing" | "qualified" | "contacted" | "closed"
       user_role: "admin" | "agent" | "client"
       workflow_source: "app" | "n8n"
@@ -561,8 +587,10 @@ export const Constants = {
       document_status: ["processing", "ready", "failed"],
       email_category: ["sales", "support", "billing", "spam", "other"],
       email_priority: ["HOT", "WARM", "COLD"],
+      email_sentiment: ["Positive", "Neutral", "Negative"],
       email_status: ["new", "processing", "processed", "replied"],
       lead_priority: ["HOT", "WARM", "COLD"],
+      lead_sentiment: ["Positive", "Neutral", "Negative"],
       lead_status: ["new", "processing", "qualified", "contacted", "closed"],
       user_role: ["admin", "agent", "client"],
       workflow_source: ["app", "n8n"],

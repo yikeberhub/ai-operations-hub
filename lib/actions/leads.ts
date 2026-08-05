@@ -75,6 +75,8 @@ async function triageLead(
         priority: result.priority,
         score: result.score,
         next_action: result.nextAction,
+        sentiment: result.sentiment,
+        sentiment_score: result.sentiment_score,
         status: "processing",
       })
       .eq("id", leadId);

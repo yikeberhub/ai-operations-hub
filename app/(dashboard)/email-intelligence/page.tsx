@@ -5,6 +5,7 @@ import type { Tables } from "@/lib/types/database.types";
 import { EmailsTable } from "@/components/emails/emails-table";
 import { EmailsToolbar } from "@/components/emails/emails-toolbar";
 import { EmailsPagination } from "@/components/emails/emails-pagination";
+import { SentimentCharts } from "@/components/emails/sentiment-charts";
 import { LogEmailDialog } from "@/components/emails/log-email-dialog";
 import { StatCard } from "@/components/dashboard/stat-card";
 
@@ -95,6 +96,8 @@ export default async function EmailIntelligencePage({
           borderColor="border-t-emerald-500/50"
         />
       </div>
+
+      <SentimentCharts />
 
       <Card>
         <CardHeader>

@@ -178,6 +178,8 @@ export function createMcpServer() {
           priority: result.priority,
           score: result.score,
           next_action: result.nextAction,
+          sentiment: result.sentiment,
+          sentiment_score: result.sentiment_score,
           status: "processing",
         })
         .eq("id", lead_id);
@@ -227,6 +229,8 @@ export function createMcpServer() {
           ai_summary: result.summary,
           category: result.category,
           priority: result.priority,
+          sentiment: result.sentiment,
+          sentiment_score: result.sentiment_score,
           status: "processed",
         })
         .eq("id", email_id);
@@ -243,6 +247,39 @@ export function createMcpServer() {
       }
 
       return { content: [{ type: "text", text: JSON.stringify(result) }] };
+    }
+  );
+
+  server.registerTool(
+    "get_email_stats",
+    {
+      title: "Get Email Stats",
+      description:
+        "Aggregated sentiment/priority stats for the dashboard charts (pie, 30-day trend line, stacked bar).",
+      inputSchema: {},
+    },
+    async () => {
+      const supabase = createServiceClient();
+      const org_id = await getDefaultOrgId(supabase);
+
+      const [{ data: sentimentCounts, error: e1 }, { data: sentimentTrend, error: e2 }, { data: priorityVsSentiment, error: e3 }] =
+        await Promise.all([
+          supabase.rpc("email_sentiment_counts", { p_org_id: org_id }),
+          supabase.rpc("email_sentiment_trend_30d", { p_org_id: org_id }),
+          supabase.rpc("email_priority_vs_sentiment", { p_org_id: org_id }),
+        ]);
+
+      const error = e1 ?? e2 ?? e3;
+      if (error) throw new Error(error.message);
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({ sentimentCounts, sentimentTrend, priorityVsSentiment }),
+          },
+        ],
+      };
     }
   );
 
