@@ -10,9 +10,11 @@ import {
   Phone,
   Snowflake,
   Sparkles,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Table,
@@ -25,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/lib/types/database.types";
 import { LeadDetailSheet } from "@/components/leads/lead-detail-sheet";
+import { DeleteLeadDialog } from "@/components/leads/delete-lead-dialog";
 
 type Lead = Tables<"leads">;
 
@@ -78,7 +81,7 @@ export function LeadsTable({ leads }: { leads: Lead[] }) {
   return (
     <>
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 z-10 bg-card">
           <TableRow>
             <TableHead>Contact</TableHead>
             <TableHead>Message</TableHead>
@@ -87,13 +90,14 @@ export function LeadsTable({ leads }: { leads: Lead[] }) {
             <TableHead>Score</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Received</TableHead>
+            <TableHead className="w-9" />
           </TableRow>
         </TableHeader>
         <TableBody>
           {leads.map((lead) => (
             <TableRow
               key={lead.id}
-              className="cursor-pointer"
+              className="cursor-pointer hover:bg-primary/3"
               onClick={() => setSelectedId(lead.id)}
             >
               <TableCell>
@@ -183,6 +187,21 @@ export function LeadsTable({ leads }: { leads: Lead[] }) {
               </TableCell>
               <TableCell className="text-right text-sm text-muted-foreground">
                 {timeAgo(lead.created_at)}
+              </TableCell>
+              <TableCell onClick={(e) => e.stopPropagation()}>
+                <DeleteLeadDialog
+                  leadId={lead.id}
+                  trigger={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400"
+                    >
+                      <Trash2 />
+                      <span className="sr-only">Delete lead</span>
+                    </Button>
+                  }
+                />
               </TableCell>
             </TableRow>
           ))}

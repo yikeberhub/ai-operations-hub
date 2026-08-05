@@ -7,8 +7,10 @@ import {
   Flame,
   Mail,
   Phone,
+  Send,
   Snowflake,
   Sparkles,
+  Trash2,
   Wand2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +34,13 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { updateLeadFields, generateDraftReply, saveDraftReply } from "@/lib/actions/leads";
+import {
+  updateLeadFields,
+  generateDraftReply,
+  saveDraftReply,
+  sendLeadReply,
+} from "@/lib/actions/leads";
+import { DeleteLeadDialog } from "@/components/leads/delete-lead-dialog";
 import type { Enums, Tables } from "@/lib/types/database.types";
 
 type Lead = Tables<"leads">;
@@ -126,9 +134,20 @@ export function LeadDetailSheet({
     });
   };
 
+  const handleSendReply = () => {
+    startTransition(async () => {
+      // Save whatever's currently in the textarea first, so edits aren't lost
+      // if the admin tweaked the draft without clicking "Save draft".
+      await saveDraftReply(lead.id, draftEmail);
+      const result = await sendLeadReply(lead.id);
+      if (result.error) toast.error(result.error);
+      else toast.success("Reply sent");
+    });
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full gap-0 overflow-y-auto sm:max-w-lg">
+      <SheetContent className="w-full gap-0 overflow-y-auto data-[side=right]:sm:max-w-3xl">
         <SheetHeader className="border-b">
           <div className="flex items-center gap-3">
             <Avatar>
@@ -280,10 +299,29 @@ export function LeadDetailSheet({
           </div>
         </div>
 
-        <SheetFooter className="border-t">
-          <Button disabled={isPending} onClick={handleSaveDraft}>
-            Save draft
-          </Button>
+        <SheetFooter className="flex-row justify-between gap-2 border-t">
+          <DeleteLeadDialog
+            leadId={lead.id}
+            onDeleted={() => onOpenChange(false)}
+            trigger={
+              <Button variant="destructive">
+                <Trash2 data-icon="inline-start" />
+                Delete
+              </Button>
+            }
+          />
+          <div className="flex gap-2">
+            <Button variant="outline" disabled={isPending} onClick={handleSaveDraft}>
+              Save draft
+            </Button>
+            <Button
+              disabled={isPending || !draftEmail || lead.status === "closed"}
+              onClick={handleSendReply}
+            >
+              <Send data-icon="inline-start" />
+              Send reply
+            </Button>
+          </div>
         </SheetFooter>
       </SheetContent>
     </Sheet>

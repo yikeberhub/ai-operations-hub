@@ -133,6 +133,31 @@ export async function saveEmailDraft(emailId: string, draftReply: string) {
   return { error: null };
 }
 
+// Reads the workflow_logs trail left by sendEmailReply() for a given email —
+// there's no dedicated replies table, so this is the closest thing to a send history.
+export async function getEmailReplyHistory(emailId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("workflow_logs")
+    .select("id, status, created_at, duration_ms, error_details")
+    .eq("workflow_name", "send_email_reply")
+    .contains("payload", { emailId })
+    .order("created_at", { ascending: false });
+
+  if (error) return { error: error.message, history: [] };
+  return { error: null, history: data ?? [] };
+}
+
+export async function deleteEmail(emailId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("emails").delete().eq("id", emailId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/email-intelligence");
+  return { error: null };
+}
+
 // Triggers the n8n "send email" workflow (Webhook trigger -> SMTP/Gmail/Outlook
 // send node). The app never holds mail-provider credentials — n8n owns the
 // actual send, keyed off org_id so multi-tenant mailboxes work later too.

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase/service";
 import { scoreLead } from "@/lib/ai/lead-scoring";
 import { categorizeEmail } from "@/lib/ai/email-intelligence";
+import { notifyHotAlert } from "@/lib/actions/notifications";
 
 /**
  * Tools exposed to n8n via the MCP Client Tool node (see app/api/mcp/route.ts).
@@ -158,7 +159,7 @@ export function createMcpServer() {
       const supabase = createServiceClient();
       const { data: lead, error: fetchError } = await supabase
         .from("leads")
-        .select("full_name, email, company, message")
+        .select("org_id, full_name, email, company, message")
         .eq("id", lead_id)
         .single();
       if (fetchError || !lead) throw new Error(fetchError?.message ?? "Lead not found");
@@ -182,6 +183,17 @@ export function createMcpServer() {
         .eq("id", lead_id);
       if (updateError) throw new Error(updateError.message);
 
+      if (result.priority === "HOT") {
+        await notifyHotAlert({
+          orgId: lead.org_id,
+          kind: "lead",
+          id: lead_id,
+          summary: result.summary,
+          score: result.score,
+          fromLabel: lead.full_name ?? lead.email,
+        });
+      }
+
       return { content: [{ type: "text", text: JSON.stringify(result) }] };
     }
   );
@@ -198,7 +210,7 @@ export function createMcpServer() {
       const supabase = createServiceClient();
       const { data: email, error: fetchError } = await supabase
         .from("emails")
-        .select("from_address, subject, body")
+        .select("org_id, from_address, subject, body")
         .eq("id", email_id)
         .single();
       if (fetchError || !email) throw new Error(fetchError?.message ?? "Email not found");
@@ -219,6 +231,16 @@ export function createMcpServer() {
         })
         .eq("id", email_id);
       if (updateError) throw new Error(updateError.message);
+
+      if (result.priority === "HOT") {
+        await notifyHotAlert({
+          orgId: email.org_id,
+          kind: "email",
+          id: email_id,
+          summary: result.summary,
+          fromLabel: email.from_address,
+        });
+      }
 
       return { content: [{ type: "text", text: JSON.stringify(result) }] };
     }

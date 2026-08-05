@@ -1,8 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Flame, Send, Snowflake, Sparkles, Wand2 } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Flame,
+  History,
+  Send,
+  Snowflake,
+  Sparkles,
+  Trash2,
+  Wand2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -29,10 +39,19 @@ import {
   generateEmailDraft,
   saveEmailDraft,
   sendEmailReply,
+  getEmailReplyHistory,
 } from "@/lib/actions/emails";
+import { DeleteEmailDialog } from "@/components/emails/delete-email-dialog";
 import type { Enums, Tables } from "@/lib/types/database.types";
 
 type EmailRow = Tables<"emails">;
+type ReplyLogEntry = {
+  id: string;
+  status: string;
+  created_at: string;
+  duration_ms: number | null;
+  error_details: unknown;
+};
 
 const PRIORITY_STYLES: Record<string, string> = {
   HOT: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
@@ -67,11 +86,28 @@ export function EmailDetailSheet({
   const [isPending, startTransition] = useTransition();
   const [draftReply, setDraftReply] = useState(email?.draft_reply ?? "");
   const [lastEmailId, setLastEmailId] = useState(email?.id);
+  const [replyHistory, setReplyHistory] = useState<ReplyLogEntry[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   if (email && email.id !== lastEmailId) {
     setLastEmailId(email.id);
     setDraftReply(email.draft_reply ?? "");
   }
+
+  useEffect(() => {
+    if (!email) return;
+    let cancelled = false;
+    setHistoryLoading(true);
+    getEmailReplyHistory(email.id).then((result) => {
+      if (cancelled) return;
+      setReplyHistory(result.history as ReplyLogEntry[]);
+      setHistoryLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email?.id]);
 
   if (!email) return null;
 
@@ -134,7 +170,7 @@ export function EmailDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full gap-0 overflow-y-auto sm:max-w-lg">
+      <SheetContent className="w-full gap-0 overflow-y-auto data-[side=right]:sm:max-w-2xl">
         <SheetHeader className="border-b">
           <div className="flex items-center gap-3">
             <Avatar>
@@ -255,19 +291,72 @@ export function EmailDetailSheet({
               onChange={(e) => setDraftReply(e.target.value)}
             />
           </div>
+
+          <div>
+            <Label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <History className="size-3.5" />
+              Reply history
+            </Label>
+            <div className="mt-1.5 space-y-2">
+              {historyLoading ? (
+                <p className="text-sm text-muted-foreground">Loading…</p>
+              ) : replyHistory.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No replies sent yet.</p>
+              ) : (
+                replyHistory.map((entry) => (
+                  <div key={entry.id} className="flex items-start gap-2 rounded-lg bg-muted/50 p-2.5">
+                    {entry.status === "success" ? (
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                    ) : (
+                      <AlertCircle className="mt-0.5 size-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">
+                        {entry.status === "success" ? "Reply sent" : "Send failed"}
+                        <span className="ml-1.5 font-normal text-muted-foreground">
+                          {new Date(entry.created_at).toLocaleString()}
+                        </span>
+                      </p>
+                      {entry.status !== "success" && entry.error_details ? (
+                        <p className="mt-0.5 truncate text-xs text-rose-600 dark:text-rose-400">
+                          {typeof entry.error_details === "object" &&
+                          entry.error_details !== null &&
+                          "message" in entry.error_details
+                            ? String((entry.error_details as { message: unknown }).message)
+                            : JSON.stringify(entry.error_details)}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
 
-        <SheetFooter className="flex-row justify-end gap-2 border-t">
-          <Button variant="outline" disabled={isPending} onClick={handleSaveDraft}>
-            Save draft
-          </Button>
-          <Button
-            disabled={isPending || !draftReply || email.status === "replied"}
-            onClick={handleSendReply}
-          >
-            <Send data-icon="inline-start" />
-            {email.status === "replied" ? "Replied" : "Send reply"}
-          </Button>
+        <SheetFooter className="flex-row justify-between gap-2 border-t">
+          <DeleteEmailDialog
+            emailId={email.id}
+            onDeleted={() => onOpenChange(false)}
+            trigger={
+              <Button variant="destructive">
+                <Trash2 data-icon="inline-start" />
+                Delete
+              </Button>
+            }
+          />
+          <div className="flex gap-2">
+            <Button variant="outline" disabled={isPending} onClick={handleSaveDraft}>
+              Save draft
+            </Button>
+            <Button
+              disabled={isPending || !draftReply || email.status === "replied"}
+              onClick={handleSendReply}
+            >
+              <Send data-icon="inline-start" />
+              {email.status === "replied" ? "Replied" : "Send reply"}
+            </Button>
+          </div>
         </SheetFooter>
       </SheetContent>
     </Sheet>

@@ -159,3 +159,75 @@ export async function saveDraftReply(leadId: string, draftEmail: string) {
   revalidatePath("/leads");
   return { error: null };
 }
+
+// Reuses the same n8n "send email" webhook the email-intelligence flow uses —
+// it just sends {to, subject, body} via Gmail, regardless of which table the
+// message originated from. Leads don't have a "replied" status, so this marks
+// the lead "contacted" instead once the send succeeds.
+export async function sendLeadReply(leadId: string) {
+  const webhookUrl = process.env.N8N_SEND_EMAIL_WEBHOOK_URL;
+  if (!webhookUrl) {
+    return { error: "N8N_SEND_EMAIL_WEBHOOK_URL is not configured — set it up in n8n first." };
+  }
+
+  const supabase = await createClient();
+  const { data: lead, error: fetchError } = await supabase
+    .from("leads")
+    .select("org_id, email, full_name, draft_email")
+    .eq("id", leadId)
+    .single();
+
+  if (fetchError || !lead) return { error: fetchError?.message ?? "Lead not found" };
+  if (!lead.draft_email) return { error: "Write or generate a draft reply before sending." };
+
+  const startedAt = Date.now();
+  try {
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.N8N_WEBHOOK_SECRET}`,
+      },
+      body: JSON.stringify({
+        leadId,
+        to: lead.email,
+        subject: `Re: your message to ${lead.full_name ? "us" : "our team"}`,
+        body: lead.draft_email,
+      }),
+    });
+
+    if (!res.ok) throw new Error(`n8n webhook responded ${res.status}`);
+
+    await supabase.from("leads").update({ status: "contacted" }).eq("id", leadId);
+    await supabase.from("workflow_logs").insert({
+      org_id: lead.org_id,
+      workflow_name: "send_lead_reply",
+      status: "success",
+      duration_ms: Date.now() - startedAt,
+      payload: { leadId },
+    });
+  } catch (err) {
+    await supabase.from("workflow_logs").insert({
+      org_id: lead.org_id,
+      workflow_name: "send_lead_reply",
+      status: "failure",
+      duration_ms: Date.now() - startedAt,
+      payload: { leadId },
+      error_details: { message: err instanceof Error ? err.message : String(err) },
+    });
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
+
+  revalidatePath("/leads");
+  return { error: null };
+}
+
+export async function deleteLead(leadId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("leads").delete().eq("id", leadId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/leads");
+  return { error: null };
+}
